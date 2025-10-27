@@ -1,5 +1,5 @@
 import type { PageLoad } from "./$types";
-import {apiClient} from "$lib/helpers/apiClient";
+import {apiClient} from "$lib/api/apiClient";
 
 
 export const load: PageLoad = async ({params}) => {
