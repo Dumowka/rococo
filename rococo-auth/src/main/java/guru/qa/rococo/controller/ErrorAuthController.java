@@ -56,7 +56,6 @@ public class ErrorAuthController implements ErrorController {
     }
 
     model.addAttribute("status", status);
-//    model.addAttribute("frontUri", rococoFrontUri + "/main");
     model.addAttribute("frontUri", rococoFrontUri);
     model.addAttribute("error", message);
     return ERROR_VIEW_NAME;
