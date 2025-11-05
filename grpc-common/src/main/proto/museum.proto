@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package guru.qa.rococo.grpc;
+
+option java_multiple_files = true;
+option java_package = "guru.qa.rococo.grpc";
+option java_outer_classname = "RococoMuseumProto";
+
+service RococoMuseumService {
+  rpc GetAllMuseums(GetAllMuseumsRequest) returns (GetAllMuseumsResponse);
+  rpc GetMuseumById(GetMuseumByIdRequest) returns (Museum);
+  rpc CreateMuseum(CreateMuseumRequest) returns (Museum);
+  rpc UpdateMuseum(UpdateMuseumRequest) returns (Museum);
+}
+
+service RococoCountryService {
+  rpc GetAllCountries(GetAllCountriesRequest) returns (GetAllCountriesResponse);
+}
+
+message Geo {
+  string city = 1;
+  Country country = 2;
+}
+
+message Country {
+  string id = 1;
+  string name = 2;
+}
+
+message Museum {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  string photo = 4;
+  Geo geo = 5;
+}
+
+message GetAllMuseumsRequest {
+  int32 size = 1;
+  int64 page = 2;
+  optional string title = 3;
+}
+
+message GetAllMuseumsResponse {
+  repeated Museum museums = 1;
+  int64 total_elements = 2;
+  int32 total_pages = 3;
+  int32 current_page = 4;
+  int32 page_size = 5;
+  bool first = 6;
+  bool last = 7;
+}
+
+message GetMuseumByIdRequest {
+  string id = 1;
+}
+
+message CreateMuseumRequest {
+  string title = 1;
+  string description = 2;
+  string photo = 3;
+  Geo geo = 4;
+}
+
+message UpdateMuseumRequest {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  string photo = 4;
+  Geo geo = 5;
+}
+
+message GetAllCountriesRequest {
+  int32 size = 1;
+  int64 page = 2;
+}
+
+message GetAllCountriesResponse {
+  repeated Country countries = 1;
+  int64 total_elements = 2;
+  int32 total_pages = 3;
+  int32 current_page = 4;
+  int32 page_size = 5;
+  bool first = 6;
+  bool last = 7;
+}
