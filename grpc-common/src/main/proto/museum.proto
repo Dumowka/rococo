@@ -49,8 +49,6 @@ message GetAllMuseumsResponse {
   int32 total_pages = 3;
   int32 current_page = 4;
   int32 page_size = 5;
-  bool first = 6;
-  bool last = 7;
 }
 
 message GetMuseumByIdRequest {
@@ -83,6 +81,4 @@ message GetAllCountriesResponse {
   int32 total_pages = 3;
   int32 current_page = 4;
   int32 page_size = 5;
-  bool first = 6;
-  bool last = 7;
 }
