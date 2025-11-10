@@ -5,19 +5,22 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "artist")
-public class ArtistEntity {
+@Table(name = "country")
+public class CountryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
@@ -28,11 +31,7 @@ public class ArtistEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Size(max = 2000)
-    @NotNull
-    @Column(name = "biography", nullable = false, length = 2000)
-    private String biography;
+    @OneToMany(mappedBy = "country")
+    private Set<MuseumEntity> museums = new LinkedHashSet<>();
 
-    @Column(name = "photo")
-    private byte[] photo;
 }
