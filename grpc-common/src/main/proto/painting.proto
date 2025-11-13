@@ -11,7 +11,7 @@ option java_outer_classname = "RococoPaintingProto";
 service RococoPaintingService {
   rpc GetAllPaintings(GetAllPaintingsRequest) returns (GetAllPaintingsResponse);
   rpc GetPaintingById(GetPaintingByIdRequest) returns (Painting);
-  rpc GetPaintingByArtistId(GetPaintingByArtistIdRequest) returns (GetAllPaintingsResponse);
+  rpc GetPaintingsByArtistId(GetPaintingsByArtistIdRequest) returns (GetAllPaintingsResponse);
   rpc CreatePainting(CreatePaintingRequest) returns (Painting);
   rpc UpdatePainting(UpdatePaintingRequest) returns (Painting);
 }
@@ -43,7 +43,7 @@ message GetPaintingByIdRequest {
   string id = 1;
 }
 
-message GetPaintingByArtistIdRequest {
+message GetPaintingsByArtistIdRequest {
   string artist_id = 1;
   int32 size = 2;
   int32 page = 3;

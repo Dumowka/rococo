@@ -6,8 +6,8 @@ import guru.qa.rococo.ex.PaintingNotFoundException;
 import guru.qa.rococo.grpc.CreatePaintingRequest;
 import guru.qa.rococo.grpc.GetAllPaintingsRequest;
 import guru.qa.rococo.grpc.GetAllPaintingsResponse;
-import guru.qa.rococo.grpc.GetPaintingByArtistIdRequest;
 import guru.qa.rococo.grpc.GetPaintingByIdRequest;
+import guru.qa.rococo.grpc.GetPaintingsByArtistIdRequest;
 import guru.qa.rococo.grpc.Painting;
 import guru.qa.rococo.grpc.RococoPaintingServiceGrpc;
 import guru.qa.rococo.grpc.UpdatePaintingRequest;
@@ -64,7 +64,7 @@ public class PaintingGrpcService extends RococoPaintingServiceGrpc.RococoPaintin
     }
 
     @Override
-    public void getPaintingByArtistId(GetPaintingByArtistIdRequest request, StreamObserver<GetAllPaintingsResponse> responseObserver) {
+    public void getPaintingsByArtistId(GetPaintingsByArtistIdRequest request, StreamObserver<GetAllPaintingsResponse> responseObserver) {
         UUID id = UUID.fromString(request.getArtistId());
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
         Page<PaintingEntity> paintings = paintingRepository.findByArtistId(id, pageable);
