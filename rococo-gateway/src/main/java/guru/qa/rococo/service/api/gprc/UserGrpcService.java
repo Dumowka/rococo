@@ -34,6 +34,7 @@ public class UserGrpcService implements UserService {
     @Override
     public UserJson updateUser(UserJson user) {
         UpdateUserRequest.Builder requestBuilder = UpdateUserRequest.newBuilder()
+                .setUsername(user.username())
                 .setFirstname(user.firstname() != null ? user.firstname() : "")
                 .setLastname(user.lastname() != null ? user.lastname() : "");
 
