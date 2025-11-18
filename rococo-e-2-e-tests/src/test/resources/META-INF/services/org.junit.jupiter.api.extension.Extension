@@ -1,0 +1,3 @@
+guru.qa.rococo.jupiter.extension.CookieStoreExtension
+guru.qa.rococo.jupiter.extension.DatabasesExtension
+guru.qa.rococo.jupiter.extension.TestMethodContextExtension

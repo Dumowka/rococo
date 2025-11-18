@@ -1,0 +1,55 @@
+package guru.qa.rococo.utils;
+
+import com.github.javafaker.Faker;
+
+import javax.annotation.Nonnull;
+
+public class RandomDataUtils {
+
+    private static final Faker faker = new Faker();
+
+    @Nonnull
+    public static String randomUsername() {
+        return faker.name().username();
+    }
+
+    @Nonnull
+    public static String randomFirstName() {
+        return faker.name().firstName();
+    }
+
+    @Nonnull
+    public static String randomLastName() {
+        return faker.name().lastName();
+    }
+
+    @Nonnull
+    public static String randomArtistName() {
+        return faker.name().fullName();
+    }
+
+    @Nonnull
+    public static String randomArtistBiography() {
+        return faker.lorem().sentence(20);
+    }
+
+    @Nonnull
+    public static String randomCityName() {
+        return faker.address().city();
+    }
+
+    @Nonnull
+    public static String randomMuseumName() {
+        return faker.letterify("????????");
+    }
+
+    @Nonnull
+    public static String randomPaintingName() {
+        return  faker.funnyName().name();
+    }
+
+    @Nonnull
+    public static String randomSentence(int characterCount) {
+        return faker.lorem().fixedString(characterCount);
+    }
+}

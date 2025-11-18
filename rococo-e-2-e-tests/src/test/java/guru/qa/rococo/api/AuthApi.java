@@ -1,0 +1,54 @@
+package guru.qa.rococo.api;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import retrofit2.Call;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.GET;
+import retrofit2.http.POST;
+import retrofit2.http.Query;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
+public interface AuthApi {
+
+    @GET("/register")
+    Call<Void> requestRegisterForm();
+
+    @POST("/register")
+    Call<Void> register(
+            @Query("username") String username,
+            @Query("password") String password,
+            @Query("passwordSubmit") String passwordSubmit,
+            @Query("_csrf") String token
+    );
+
+    @GET("oauth2/authorize")
+    Call<Void> authorize(
+            @Query("response_type") String responseType,
+            @Query("client_id") String clientId,
+            @Query("scope") String scope,
+            @Query(value = "redirect_uri", encoded = true) String redirectUri,
+            @Query("code_challenge") String codeChallenge,
+            @Query("code_challenge_method") String codeChallengeMethod
+    );
+
+    @FormUrlEncoded
+    @POST("/login")
+    Call<Void> login(
+            @Field("username") String username,
+            @Field("password") String password,
+            @Field("_csrf") String token
+    );
+
+    @FormUrlEncoded
+    @POST("oauth2/token")
+    Call<JsonNode> token(
+            @Field("code") String code,
+            @Field(value = "redirect_uri", encoded = true) String redirectUri,
+            @Field("code_verifier") String codeVerifier,
+            @Field("grant_type") String grantType,
+            @Field("client_id") String clientId
+    );
+}

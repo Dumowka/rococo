@@ -1,0 +1,91 @@
+package guru.qa.rococo.api;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import guru.qa.rococo.api.core.CodeInterceptor;
+import guru.qa.rococo.api.core.ThreadSafeCookieStore;
+import guru.qa.rococo.jupiter.extension.ApiLoginExtension;
+import guru.qa.rococo.model.userdata.UserJson;
+import guru.qa.rococo.service.RestClient;
+import guru.qa.rococo.utils.OauthUtils;
+import lombok.SneakyThrows;
+import org.apache.commons.lang3.time.StopWatch;
+import retrofit2.Response;
+
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
+public class AuthApiClient extends RestClient {
+
+    private final AuthApi authApi;
+    private final UserdataApi userdataApi;
+
+    public AuthApiClient() {
+        super(CFG.authUrl(), true, new CodeInterceptor());
+        authApi = create(AuthApi.class);
+        userdataApi = create(UserdataApi.class);
+    }
+
+    public @Nonnull UserJson register(String username, String password, String passwordSubmit) {
+        try {
+            authApi.requestRegisterForm().execute();
+            authApi.register(
+                    username,
+                    password,
+                    passwordSubmit,
+                    ThreadSafeCookieStore.INSTANCE.cookieValue("XSRF-TOKEN")
+            ).execute();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        StopWatch sw = StopWatch.createStarted();
+        while (sw.getTime(TimeUnit.SECONDS) < 30) {
+            UserJson userJson = null;
+//            userJson = userdataApi.currentUser(username);
+            if (userJson != null && userJson.id() != null) {
+                return userJson;
+            } else {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        throw new AssertionError("Timed out waiting for register");
+    }
+
+    @SneakyThrows
+    public String login(String username, String password) {
+        final String codeVerifier = OauthUtils.generateCodeVerifier();
+        final String codeChallenge = OauthUtils.generateCodeChallenge(codeVerifier);
+        final String clientId = "client";
+        final String redirectUri = CFG.frontUrl() + "authorized";
+
+        authApi.authorize(
+                "code",
+                clientId,
+                "openid",
+                redirectUri,
+                codeChallenge,
+                "S256"
+        ).execute();
+
+        authApi.login(
+                username,
+                password,
+                ThreadSafeCookieStore.INSTANCE.cookieValue("XSRF-TOKEN")
+        ).execute();
+
+        Response<JsonNode> tokenResponse = authApi.token(
+                ApiLoginExtension.getCode(),
+                redirectUri,
+                codeVerifier,
+                "authorization_code",
+                clientId
+        ).execute();
+
+        return tokenResponse.body().get("id_token").asText();
+    }
+}
