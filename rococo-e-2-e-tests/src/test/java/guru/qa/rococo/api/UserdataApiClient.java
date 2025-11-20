@@ -10,6 +10,4 @@ public class UserdataApiClient extends RestClient {
         super(CFG.gatewayUrl());
         userdataApi = create(UserdataApi.class);
     }
-
-
 }

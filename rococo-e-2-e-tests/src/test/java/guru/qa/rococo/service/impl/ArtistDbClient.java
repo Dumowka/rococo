@@ -1,0 +1,26 @@
+package guru.qa.rococo.service.impl;
+
+import guru.qa.rococo.config.Config;
+import guru.qa.rococo.data.entity.artist.ArtistEntity;
+import guru.qa.rococo.data.repository.ArtistRepository;
+import guru.qa.rococo.data.tpl.XaTransactionTemplate;
+import guru.qa.rococo.model.artist.ArtistJson;
+
+import java.util.Objects;
+
+public class ArtistDbClient {
+
+    private static final Config CFG = Config.getInstance();
+
+    private final ArtistRepository artistRepository = new ArtistRepository();
+
+    private final XaTransactionTemplate xaTransactionTemplate = new XaTransactionTemplate(
+            CFG.artistJdbcUrl()
+    );
+
+    public ArtistJson createArtist(ArtistEntity artist) {
+        return Objects.requireNonNull(xaTransactionTemplate.execute(() -> ArtistJson.fromEntity(
+                artistRepository.create(artist)
+        )));
+    }
+}

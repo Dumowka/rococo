@@ -24,4 +24,38 @@
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
         </properties>
     </persistence-unit>
+
+    <persistence-unit name="rococo-artist" transaction-type="JTA">
+        <jta-data-source>java:comp/env/jdbc/rococo-artist</jta-data-source>
+        <class>guru.qa.rococo.data.entity.artist.ArtistEntity</class>
+
+        <properties>
+            <property name="hibernate.transaction.jta.platform" value="com.atomikos.icatch.jta.hibernate4.AtomikosPlatform"/>
+            <property name="hibernate.connection.handling_mode" value="DELAYED_ACQUISITION_AND_RELEASE_AFTER_STATEMENT"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+        </properties>
+    </persistence-unit>
+
+    <persistence-unit name="rococo-museum" transaction-type="JTA">
+        <jta-data-source>java:comp/env/jdbc/rococo-museum</jta-data-source>
+        <class>guru.qa.rococo.data.entity.museum.MuseumEntity</class>
+        <class>guru.qa.rococo.data.entity.museum.CountryEntity</class>
+
+        <properties>
+            <property name="hibernate.transaction.jta.platform" value="com.atomikos.icatch.jta.hibernate4.AtomikosPlatform"/>
+            <property name="hibernate.connection.handling_mode" value="DELAYED_ACQUISITION_AND_RELEASE_AFTER_STATEMENT"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+        </properties>
+    </persistence-unit>
+
+    <persistence-unit name="rococo-painting" transaction-type="JTA">
+        <jta-data-source>java:comp/env/jdbc/rococo-painting</jta-data-source>
+        <class>guru.qa.rococo.data.entity.painting.PaintingEntity</class>
+
+        <properties>
+            <property name="hibernate.transaction.jta.platform" value="com.atomikos.icatch.jta.hibernate4.AtomikosPlatform"/>
+            <property name="hibernate.connection.handling_mode" value="DELAYED_ACQUISITION_AND_RELEASE_AFTER_STATEMENT"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+        </properties>
+    </persistence-unit>
 </persistence>
