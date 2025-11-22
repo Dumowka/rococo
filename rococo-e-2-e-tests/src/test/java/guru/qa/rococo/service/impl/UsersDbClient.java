@@ -10,6 +10,7 @@ import guru.qa.rococo.data.repository.UserdataUserRepository;
 import guru.qa.rococo.data.tpl.XaTransactionTemplate;
 import guru.qa.rococo.model.userdata.UserJson;
 import guru.qa.rococo.service.UsersClient;
+import io.qameta.allure.Step;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,6 +34,7 @@ public class UsersDbClient implements UsersClient {
 
     @NotNull
     @Override
+    @Step("Создание пользователя через БД")
     public UserJson createUser(String username, String password) {
         return Objects.requireNonNull(xaTransactionTemplate.execute(() -> {
             authUserRepository.create(authUserEntity(username, password));

@@ -5,6 +5,7 @@ import guru.qa.rococo.data.entity.museum.MuseumEntity;
 import guru.qa.rococo.data.repository.MuseumRepository;
 import guru.qa.rococo.data.tpl.XaTransactionTemplate;
 import guru.qa.rococo.model.museum.MuseumJson;
+import io.qameta.allure.Step;
 
 import java.util.Objects;
 
@@ -18,6 +19,7 @@ public class MuseumDbClient {
             CFG.museumJdbcUrl()
     );
 
+    @Step("Создание музея через БД")
     public MuseumJson createMuseum(MuseumEntity museum) {
         return Objects.requireNonNull(xaTransactionTemplate.execute(() -> MuseumJson.fromEntity(
                 museumRepository.create(museum)

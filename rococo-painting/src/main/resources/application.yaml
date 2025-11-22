@@ -3,11 +3,11 @@ server:
 
 spring:
   application:
-    name: rococo-museum
+    name: rococo-painting
   grpc:
     server:
       port: 9097
-      max-inbound-message-size: 1MB
+      max-inbound-message-size: 16777216
   datasource:
     url: 'jdbc:postgresql://localhost:5432/rococo-painting'
     username: postgres

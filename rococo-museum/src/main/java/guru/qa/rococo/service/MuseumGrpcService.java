@@ -6,7 +6,6 @@ import guru.qa.rococo.data.repository.CountryRepository;
 import guru.qa.rococo.data.repository.MuseumRepository;
 import guru.qa.rococo.ex.CountryNotFoundException;
 import guru.qa.rococo.ex.MuseumNotFoundException;
-import guru.qa.rococo.grpc.Artist;
 import guru.qa.rococo.grpc.Country;
 import guru.qa.rococo.grpc.CreateMuseumRequest;
 import guru.qa.rococo.grpc.Geo;
@@ -16,6 +15,7 @@ import guru.qa.rococo.grpc.GetMuseumByIdRequest;
 import guru.qa.rococo.grpc.Museum;
 import guru.qa.rococo.grpc.RococoMuseumServiceGrpc;
 import guru.qa.rococo.grpc.UpdateMuseumRequest;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -40,74 +40,98 @@ public class MuseumGrpcService extends RococoMuseumServiceGrpc.RococoMuseumServi
 
     @Override
     public void getAllMuseums(GetAllMuseumsRequest request, StreamObserver<GetAllMuseumsResponse> responseObserver) {
-        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
-        Page<MuseumEntity> museums = request.hasTitle() && !request.getTitle().isEmpty()
-                ? museumRepository.findByTitleContainingIgnoreCase(request.getTitle(), pageable)
-                : museumRepository.findAll(pageable);
+        try {
+            Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+            Page<MuseumEntity> museums = request.hasTitle() && !request.getTitle().isEmpty()
+                    ? museumRepository.findByTitleContainingIgnoreCase(request.getTitle(), pageable)
+                    : museumRepository.findAll(pageable);
 
-        GetAllMuseumsResponse.Builder responseBuilder = GetAllMuseumsResponse.newBuilder()
-                .setTotalPages(museums.getTotalPages())
-                .setTotalElements(museums.getTotalElements())
-                .setCurrentPage(museums.getNumber())
-                .setPageSize(museums.getSize());
+            GetAllMuseumsResponse.Builder responseBuilder = GetAllMuseumsResponse.newBuilder()
+                    .setTotalPages(museums.getTotalPages())
+                    .setTotalElements(museums.getTotalElements())
+                    .setCurrentPage(museums.getNumber())
+                    .setPageSize(museums.getSize());
 
-        for (MuseumEntity museum : museums) {
-            responseBuilder.addMuseums(convertToGrpcArtist(museum));
+            for (MuseumEntity museum : museums) {
+                responseBuilder.addMuseums(convertToGrpcArtist(museum));
+            }
+
+            responseObserver.onNext(responseBuilder.build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Error on get all museum: " + e.getMessage())
+                    .asRuntimeException());
         }
-
-        responseObserver.onNext(responseBuilder.build());
-        responseObserver.onCompleted();
     }
 
     @Override
     public void getMuseumById(GetMuseumByIdRequest request, StreamObserver<Museum> responseObserver) {
-        UUID id = UUID.fromString(request.getId());
-        MuseumEntity museum = museumRepository.findById(id)
-                .orElseThrow(MuseumNotFoundException::new);
+        try {
+            UUID id = UUID.fromString(request.getId());
+            MuseumEntity museum = museumRepository.findById(id)
+                    .orElseThrow(MuseumNotFoundException::new);
 
-        responseObserver.onNext(convertToGrpcArtist(museum));
-        responseObserver.onCompleted();
+            responseObserver.onNext(convertToGrpcArtist(museum));
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Error on get museum by id: " + e.getMessage())
+                    .asRuntimeException());
+        }
     }
 
     @Override
     public void createMuseum(CreateMuseumRequest request, StreamObserver<Museum> responseObserver) {
-        UUID countryId = UUID.fromString(request.getGeo().getCountry().getId());
-        CountryEntity countryEntity = countryRepository.findById(countryId)
-                .orElseThrow(CountryNotFoundException::new);
+        try {
+            UUID countryId = UUID.fromString(request.getGeo().getCountry().getId());
+            CountryEntity countryEntity = countryRepository.findById(countryId)
+                    .orElseThrow(CountryNotFoundException::new);
 
-        MuseumEntity museumEntity = new MuseumEntity();
-        museumEntity.setTitle(request.getTitle());
-        museumEntity.setDescription(request.getDescription());
-        if (!request.getPhoto().isEmpty()) {
-            museumEntity.setPhoto(request.getPhoto().getBytes(StandardCharsets.UTF_8));
+            MuseumEntity museumEntity = new MuseumEntity();
+            museumEntity.setTitle(request.getTitle());
+            museumEntity.setDescription(request.getDescription());
+            if (!request.getPhoto().isEmpty()) {
+                museumEntity.setPhoto(request.getPhoto().getBytes(StandardCharsets.UTF_8));
+            }
+            museumEntity.setCity(request.getGeo().getCity());
+            museumEntity.setCountry(countryEntity);
+
+            MuseumEntity savedMuseum = museumRepository.save(museumEntity);
+            responseObserver.onNext(convertToGrpcArtist(savedMuseum));
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Error on create museum: " + e.getMessage())
+                    .asRuntimeException());
         }
-        museumEntity.setCity(request.getGeo().getCity());
-        museumEntity.setCountry(countryEntity);
-
-        MuseumEntity savedMuseum = museumRepository.save(museumEntity);
-        responseObserver.onNext(convertToGrpcArtist(savedMuseum));
-        responseObserver.onCompleted();
     }
 
     @Override
     public void updateMuseum(UpdateMuseumRequest request, StreamObserver<Museum> responseObserver) {
-        UUID id = UUID.fromString(request.getId());
-        MuseumEntity museumEntity = museumRepository.findById(id)
-                .orElseThrow(MuseumNotFoundException::new);
+        try {
+            UUID id = UUID.fromString(request.getId());
+            MuseumEntity museumEntity = museumRepository.findById(id)
+                    .orElseThrow(MuseumNotFoundException::new);
 
-        museumEntity.setTitle(request.getTitle());
-        museumEntity.setDescription(request.getDescription());
-        museumEntity.setPhoto(request.getPhoto().getBytes(StandardCharsets.UTF_8));
-        museumEntity.setCity(request.getGeo().getCity());
+            museumEntity.setTitle(request.getTitle());
+            museumEntity.setDescription(request.getDescription());
+            museumEntity.setPhoto(request.getPhoto().getBytes(StandardCharsets.UTF_8));
+            museumEntity.setCity(request.getGeo().getCity());
 
-        UUID countryId = UUID.fromString(request.getGeo().getCountry().getId());
-        CountryEntity countryEntity = countryRepository.findById(countryId)
-                .orElseThrow(CountryNotFoundException::new);
-        museumEntity.setCountry(countryEntity);
+            UUID countryId = UUID.fromString(request.getGeo().getCountry().getId());
+            CountryEntity countryEntity = countryRepository.findById(countryId)
+                    .orElseThrow(CountryNotFoundException::new);
+            museumEntity.setCountry(countryEntity);
 
-        MuseumEntity savedMuseum = museumRepository.save(museumEntity);
-        responseObserver.onNext(convertToGrpcArtist(savedMuseum));
-        responseObserver.onCompleted();
+            MuseumEntity savedMuseum = museumRepository.save(museumEntity);
+            responseObserver.onNext(convertToGrpcArtist(savedMuseum));
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Error on update museum: " + e.getMessage())
+                    .asRuntimeException());
+        }
     }
 
     private Museum convertToGrpcArtist(MuseumEntity entity) {

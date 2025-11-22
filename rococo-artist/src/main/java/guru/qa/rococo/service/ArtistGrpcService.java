@@ -10,6 +10,7 @@ import guru.qa.rococo.grpc.GetAllArtistsResponse;
 import guru.qa.rococo.grpc.GetArtistByIdRequest;
 import guru.qa.rococo.grpc.RococoArtistServiceGrpc;
 import guru.qa.rococo.grpc.UpdateArtistRequest;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,66 +33,90 @@ public class ArtistGrpcService extends RococoArtistServiceGrpc.RococoArtistServi
 
     @Override
     public void getAllArtists(GetAllArtistsRequest request, StreamObserver<GetAllArtistsResponse> responseObserver) {
-        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
-        Page<ArtistEntity> artists = request.hasName() && !request.getName().isEmpty()
-                ? artistRepository.findByNameContainingIgnoreCase(request.getName(), pageable)
-                : artistRepository.findAll(pageable);
+        try {
+            Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+            Page<ArtistEntity> artists = request.hasName() && !request.getName().isEmpty()
+                    ? artistRepository.findByNameContainingIgnoreCase(request.getName(), pageable)
+                    : artistRepository.findAll(pageable);
 
-        GetAllArtistsResponse.Builder responseBuilder = GetAllArtistsResponse.newBuilder()
-                .setTotalPages(artists.getTotalPages())
-                .setTotalElements(artists.getTotalElements())
-                .setCurrentPage(artists.getNumber())
-                .setPageSize(artists.getSize());
+            GetAllArtistsResponse.Builder responseBuilder = GetAllArtistsResponse.newBuilder()
+                    .setTotalPages(artists.getTotalPages())
+                    .setTotalElements(artists.getTotalElements())
+                    .setCurrentPage(artists.getNumber())
+                    .setPageSize(artists.getSize());
 
-        for (ArtistEntity artist : artists) {
-            responseBuilder.addArtists(convertToGrpcArtist(artist));
+            for (ArtistEntity artist : artists) {
+                responseBuilder.addArtists(convertToGrpcArtist(artist));
+            }
+
+            responseObserver.onNext(responseBuilder.build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Error on get all artists: " + e.getMessage())
+                    .asRuntimeException());
         }
-
-        responseObserver.onNext(responseBuilder.build());
-        responseObserver.onCompleted();
     }
 
     @Override
     public void getArtistById(GetArtistByIdRequest request, StreamObserver<Artist> responseObserver) {
-        UUID id = UUID.fromString(request.getId());
-        ArtistEntity artist = artistRepository.findById(id)
-                .orElseThrow(ArtistNotFoundException::new);
+        try {
+            UUID id = UUID.fromString(request.getId());
+            ArtistEntity artist = artistRepository.findById(id)
+                    .orElseThrow(ArtistNotFoundException::new);
 
-        responseObserver.onNext(convertToGrpcArtist(artist));
-        responseObserver.onCompleted();
+            responseObserver.onNext(convertToGrpcArtist(artist));
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Error on get artist by id: " + e.getMessage())
+                    .asRuntimeException());
+        }
     }
 
     @Override
     public void createArtist(CreateArtistRequest request, StreamObserver<Artist> responseObserver) {
-        ArtistEntity artistEntity = new ArtistEntity();
-        artistEntity.setName(request.getName());
-        artistEntity.setBiography(request.getBiography());
-        if (!request.getPhoto().isEmpty()) {
-            artistEntity.setPhoto(request.getPhoto().getBytes(StandardCharsets.UTF_8));
-        }
+        try {
+            ArtistEntity artistEntity = new ArtistEntity();
+            artistEntity.setName(request.getName());
+            artistEntity.setBiography(request.getBiography());
+            if (!request.getPhoto().isEmpty()) {
+                artistEntity.setPhoto(request.getPhoto().getBytes(StandardCharsets.UTF_8));
+            }
 
-        ArtistEntity savedArtist = artistRepository.save(artistEntity);
-        responseObserver.onNext(convertToGrpcArtist(savedArtist));
-        responseObserver.onCompleted();
+            ArtistEntity savedArtist = artistRepository.save(artistEntity);
+            responseObserver.onNext(convertToGrpcArtist(savedArtist));
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Error on create artist: " + e.getMessage())
+                    .asRuntimeException());
+        }
     }
 
     @Override
     public void updateArtist(UpdateArtistRequest request, StreamObserver<Artist> responseObserver) {
-        UUID id = UUID.fromString(request.getId());
-        ArtistEntity artistEntity = artistRepository.findById(id)
-                .orElseThrow(ArtistNotFoundException::new);
+        try {
+            UUID id = UUID.fromString(request.getId());
+            ArtistEntity artistEntity = artistRepository.findById(id)
+                    .orElseThrow(ArtistNotFoundException::new);
 
-        artistEntity.setName(request.getName());
-        artistEntity.setBiography(request.getBiography());
-        if (!request.getPhoto().isEmpty()) {
-            artistEntity.setPhoto(request.getPhoto().getBytes(StandardCharsets.UTF_8));
-        } else {
-            artistEntity.setPhoto(null);
+            artistEntity.setName(request.getName());
+            artistEntity.setBiography(request.getBiography());
+            if (!request.getPhoto().isEmpty()) {
+                artistEntity.setPhoto(request.getPhoto().getBytes(StandardCharsets.UTF_8));
+            } else {
+                artistEntity.setPhoto(null);
+            }
+
+            ArtistEntity savedArtist = artistRepository.save(artistEntity);
+            responseObserver.onNext(convertToGrpcArtist(savedArtist));
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Error on update artist: " + e.getMessage())
+                    .asRuntimeException());
         }
-
-        ArtistEntity savedArtist = artistRepository.save(artistEntity);
-        responseObserver.onNext(convertToGrpcArtist(savedArtist));
-        responseObserver.onCompleted();
     }
 
     private Artist convertToGrpcArtist(ArtistEntity entity) {

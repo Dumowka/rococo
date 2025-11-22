@@ -4,6 +4,7 @@ import guru.qa.rococo.config.Config;
 import guru.qa.rococo.data.entity.museum.CountryEntity;
 import guru.qa.rococo.data.repository.CountryRepository;
 import guru.qa.rococo.data.tpl.XaTransactionTemplate;
+import io.qameta.allure.Step;
 
 import java.util.Objects;
 
@@ -17,6 +18,7 @@ public class CountryDbClient {
             CFG.museumJdbcUrl()
     );
 
+    @Step("Получение страны '{0}' через БД")
     public CountryEntity findByName(String name) {
         return Objects.requireNonNull(xaTransactionTemplate.execute(() ->
                 countryRepository.findByName(name)

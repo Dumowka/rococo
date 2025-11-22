@@ -7,6 +7,7 @@ import guru.qa.rococo.grpc.GetUserRequest;
 import guru.qa.rococo.grpc.RococoUserServiceGrpc;
 import guru.qa.rococo.grpc.UpdateUserRequest;
 import guru.qa.rococo.grpc.User;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.grpc.server.service.GrpcService;
@@ -25,29 +26,41 @@ public class UserGrpcService extends RococoUserServiceGrpc.RococoUserServiceImpl
 
     @Override
     public void getUser(GetUserRequest request, StreamObserver<User> responseObserver) {
-        UserEntity userEntity = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(UserNotFoundException::new);
-        responseObserver.onNext(convertToGrpcUser(userEntity));
-        responseObserver.onCompleted();
+        try {
+            UserEntity userEntity = userRepository.findByUsername(request.getUsername())
+                    .orElseThrow(UserNotFoundException::new);
+            responseObserver.onNext(convertToGrpcUser(userEntity));
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Error on get user: " + e.getMessage())
+                    .asRuntimeException());
+        }
     }
 
     @Override
     public void updateUser(UpdateUserRequest request, StreamObserver<User> responseObserver) {
-        UserEntity userEntity = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(UserNotFoundException::new);
+        try {
+            UserEntity userEntity = userRepository.findByUsername(request.getUsername())
+                    .orElseThrow(UserNotFoundException::new);
 
-        userEntity.setFirstname(request.getFirstname());
-        userEntity.setLastname(request.getLastname());
+            userEntity.setFirstname(request.getFirstname());
+            userEntity.setLastname(request.getLastname());
 
-        if (!request.getAvatar().isEmpty()) {
-            userEntity.setAvatar(request.getAvatar().getBytes(StandardCharsets.UTF_8));
-        } else {
-            userEntity.setAvatar(null);
+            if (!request.getAvatar().isEmpty()) {
+                userEntity.setAvatar(request.getAvatar().getBytes(StandardCharsets.UTF_8));
+            } else {
+                userEntity.setAvatar(null);
+            }
+
+            UserEntity savedUser = userRepository.save(userEntity);
+            responseObserver.onNext(convertToGrpcUser(savedUser));
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Error on update user: " + e.getMessage())
+                    .asRuntimeException());
         }
-
-        UserEntity savedUser = userRepository.save(userEntity);
-        responseObserver.onNext(convertToGrpcUser(savedUser));
-        responseObserver.onCompleted();
     }
 
     private User convertToGrpcUser(UserEntity entity) {

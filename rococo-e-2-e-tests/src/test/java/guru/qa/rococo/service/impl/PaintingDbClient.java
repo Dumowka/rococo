@@ -5,6 +5,7 @@ import guru.qa.rococo.data.entity.painting.PaintingEntity;
 import guru.qa.rococo.data.repository.PaintingRepository;
 import guru.qa.rococo.data.tpl.XaTransactionTemplate;
 import guru.qa.rococo.model.painting.PaintingJson;
+import io.qameta.allure.Step;
 
 import java.util.Objects;
 
@@ -18,6 +19,7 @@ public class PaintingDbClient {
             CFG.paintingJdbcUrl()
     );
 
+    @Step("Создание картины через БД")
     public PaintingJson createPainting(PaintingEntity painting) {
         return Objects.requireNonNull(xaTransactionTemplate.execute(() -> PaintingJson.fromEntity(
                 paintingRepository.create(painting)

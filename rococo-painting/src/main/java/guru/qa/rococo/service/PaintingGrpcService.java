@@ -11,6 +11,7 @@ import guru.qa.rococo.grpc.GetPaintingsByArtistIdRequest;
 import guru.qa.rococo.grpc.Painting;
 import guru.qa.rococo.grpc.RococoPaintingServiceGrpc;
 import guru.qa.rococo.grpc.UpdatePaintingRequest;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -33,107 +34,137 @@ public class PaintingGrpcService extends RococoPaintingServiceGrpc.RococoPaintin
 
     @Override
     public void getAllPaintings(GetAllPaintingsRequest request, StreamObserver<GetAllPaintingsResponse> responseObserver) {
-        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+        try {
+            Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
 
-        Page<PaintingEntity> paintings = request.hasTitle() && !request.getTitle().isEmpty()
-                ? paintingRepository.findByTitleContainingIgnoreCase(request.getTitle(), pageable)
-                : paintingRepository.findAll(pageable);
+            Page<PaintingEntity> paintings = request.hasTitle() && !request.getTitle().isEmpty()
+                    ? paintingRepository.findByTitleContainingIgnoreCase(request.getTitle(), pageable)
+                    : paintingRepository.findAll(pageable);
 
-        GetAllPaintingsResponse.Builder responseBuilder = GetAllPaintingsResponse.newBuilder()
-                .setTotalPages(paintings.getTotalPages())
-                .setTotalElements(paintings.getTotalElements())
-                .setCurrentPage(paintings.getNumber())
-                .setPageSize(paintings.getSize());
+            GetAllPaintingsResponse.Builder responseBuilder = GetAllPaintingsResponse.newBuilder()
+                    .setTotalPages(paintings.getTotalPages())
+                    .setTotalElements(paintings.getTotalElements())
+                    .setCurrentPage(paintings.getNumber())
+                    .setPageSize(paintings.getSize());
 
-        for (PaintingEntity painting : paintings.getContent()) {
-            responseBuilder.addPaintings(convertToGrpcPainting(painting));
+            for (PaintingEntity painting : paintings.getContent()) {
+                responseBuilder.addPaintings(convertToGrpcPainting(painting));
+            }
+
+            responseObserver.onNext(responseBuilder.build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Error on get all paintings: " + e.getMessage())
+                    .asRuntimeException());
         }
-
-        responseObserver.onNext(responseBuilder.build());
-        responseObserver.onCompleted();
     }
 
     @Override
     public void getPaintingById(GetPaintingByIdRequest request, StreamObserver<Painting> responseObserver) {
-        UUID id = UUID.fromString(request.getId());
-        PaintingEntity painting = paintingRepository.findById(id)
-                .orElseThrow(PaintingNotFoundException::new);
+        try {
+            UUID id = UUID.fromString(request.getId());
+            PaintingEntity painting = paintingRepository.findById(id)
+                    .orElseThrow(PaintingNotFoundException::new);
 
-        responseObserver.onNext(convertToGrpcPainting(painting));
-        responseObserver.onCompleted();
+            responseObserver.onNext(convertToGrpcPainting(painting));
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Error on get painting by id: " + e.getMessage())
+                    .asRuntimeException());
+        }
     }
 
     @Override
     public void getPaintingsByArtistId(GetPaintingsByArtistIdRequest request, StreamObserver<GetAllPaintingsResponse> responseObserver) {
-        UUID id = UUID.fromString(request.getArtistId());
-        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
-        Page<PaintingEntity> paintings = paintingRepository.findByArtistId(id, pageable);
+        try {
+            UUID id = UUID.fromString(request.getArtistId());
+            Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+            Page<PaintingEntity> paintings = paintingRepository.findByArtistId(id, pageable);
 
-        GetAllPaintingsResponse.Builder responseBuilder = GetAllPaintingsResponse.newBuilder()
-                .setTotalPages(paintings.getTotalPages())
-                .setTotalElements(paintings.getTotalElements())
-                .setCurrentPage(paintings.getNumber())
-                .setPageSize(paintings.getSize());
+            GetAllPaintingsResponse.Builder responseBuilder = GetAllPaintingsResponse.newBuilder()
+                    .setTotalPages(paintings.getTotalPages())
+                    .setTotalElements(paintings.getTotalElements())
+                    .setCurrentPage(paintings.getNumber())
+                    .setPageSize(paintings.getSize());
 
-        for (PaintingEntity painting : paintings.getContent()) {
-            responseBuilder.addPaintings(convertToGrpcPainting(painting));
+            for (PaintingEntity painting : paintings.getContent()) {
+                responseBuilder.addPaintings(convertToGrpcPainting(painting));
+            }
+
+            responseObserver.onNext(responseBuilder.build());
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Error on get painting by artist id: " + e.getMessage())
+                    .asRuntimeException());
         }
-
-        responseObserver.onNext(responseBuilder.build());
-        responseObserver.onCompleted();
     }
 
     @Override
     public void createPainting(CreatePaintingRequest request, StreamObserver<Painting> responseObserver) {
-        PaintingEntity paintingEntity = new PaintingEntity();
-        paintingEntity.setTitle(request.getTitle());
-        paintingEntity.setDescription(request.getDescription());
+        try {
+            PaintingEntity paintingEntity = new PaintingEntity();
+            paintingEntity.setTitle(request.getTitle());
+            paintingEntity.setDescription(request.getDescription());
 
-        UUID artistId = UUID.fromString(request.getArtistId());
-        paintingEntity.setArtistId(artistId);
+            UUID artistId = UUID.fromString(request.getArtistId());
+            paintingEntity.setArtistId(artistId);
 
-        if (!request.getContent().isEmpty()) {
-            paintingEntity.setContent(request.getContent().getBytes(StandardCharsets.UTF_8));
+            if (!request.getContent().isEmpty()) {
+                paintingEntity.setContent(request.getContent().getBytes(StandardCharsets.UTF_8));
+            }
+
+            if (!request.getMuseumId().isEmpty()) {
+                UUID museumId = UUID.fromString(request.getMuseumId());
+                paintingEntity.setMuseumId(museumId);
+            }
+
+            PaintingEntity savedPainting = paintingRepository.save(paintingEntity);
+            responseObserver.onNext(convertToGrpcPainting(savedPainting));
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Error on create painting: " + e.getMessage())
+                    .asRuntimeException());
         }
-
-        if (!request.getMuseumId().isEmpty()) {
-            UUID museumId = UUID.fromString(request.getMuseumId());
-            paintingEntity.setMuseumId(museumId);
-        }
-
-        PaintingEntity savedPainting = paintingRepository.save(paintingEntity);
-        responseObserver.onNext(convertToGrpcPainting(savedPainting));
-        responseObserver.onCompleted();
     }
 
     @Override
     public void updatePainting(UpdatePaintingRequest request, StreamObserver<Painting> responseObserver) {
-        UUID id = UUID.fromString(request.getId());
-        PaintingEntity paintingEntity = paintingRepository.findById(id)
-                .orElseThrow(PaintingNotFoundException::new);
+        try {
+            UUID id = UUID.fromString(request.getId());
+            PaintingEntity paintingEntity = paintingRepository.findById(id)
+                    .orElseThrow(PaintingNotFoundException::new);
 
-        paintingEntity.setTitle(request.getTitle());
-        paintingEntity.setDescription(request.getDescription());
+            paintingEntity.setTitle(request.getTitle());
+            paintingEntity.setDescription(request.getDescription());
 
-        UUID artistId = UUID.fromString(request.getArtistId());
-        paintingEntity.setArtistId(artistId);
+            UUID artistId = UUID.fromString(request.getArtistId());
+            paintingEntity.setArtistId(artistId);
 
-        if (!request.getContent().isEmpty()) {
-            paintingEntity.setContent(request.getContent().getBytes(StandardCharsets.UTF_8));
-        } else {
-            paintingEntity.setContent(null);
+            if (!request.getContent().isEmpty()) {
+                paintingEntity.setContent(request.getContent().getBytes(StandardCharsets.UTF_8));
+            } else {
+                paintingEntity.setContent(null);
+            }
+
+            if (!request.getMuseumId().isEmpty()) {
+                UUID museumId = UUID.fromString(request.getMuseumId());
+                paintingEntity.setMuseumId(museumId);
+            } else {
+                paintingEntity.setMuseumId(null);
+            }
+
+            PaintingEntity savedPainting = paintingRepository.save(paintingEntity);
+            responseObserver.onNext(convertToGrpcPainting(savedPainting));
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription("Error on update painting: " + e.getMessage())
+                    .asRuntimeException());
         }
-
-        if (!request.getMuseumId().isEmpty()) {
-            UUID museumId = UUID.fromString(request.getMuseumId());
-            paintingEntity.setMuseumId(museumId);
-        } else {
-            paintingEntity.setMuseumId(null);
-        }
-
-        PaintingEntity savedPainting = paintingRepository.save(paintingEntity);
-        responseObserver.onNext(convertToGrpcPainting(savedPainting));
-        responseObserver.onCompleted();
     }
 
     private Painting convertToGrpcPainting(PaintingEntity entity) {
