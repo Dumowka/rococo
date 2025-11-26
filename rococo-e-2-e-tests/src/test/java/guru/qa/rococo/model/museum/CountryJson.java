@@ -3,6 +3,7 @@ package guru.qa.rococo.model.museum;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import guru.qa.rococo.data.entity.museum.CountryEntity;
+import guru.qa.rococo.model.Countries;
 
 import java.util.UUID;
 
@@ -17,6 +18,13 @@ public record CountryJson(
                 return new CountryJson(
                         entity.getId(),
                         entity.getName()
+                );
+        }
+
+        public static CountryJson createCountry() {
+                return new CountryJson(
+                        null,
+                        Countries.random().getName()
                 );
         }
 }

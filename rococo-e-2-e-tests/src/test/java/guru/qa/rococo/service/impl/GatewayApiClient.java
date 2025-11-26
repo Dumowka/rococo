@@ -41,9 +41,9 @@ public class GatewayApiClient extends RestClient {
     }
 
     @Step("Получение пользователя '{0}' через REST API")
-    public UserJson getCurrentUser(String bearerToken, String username) {
+    public UserJson getCurrentUser(String bearerToken) {
         try {
-            Response<UserJson> response = userdataApi.currentUser(bearerToken, username).execute();
+            Response<UserJson> response = userdataApi.currentUser(bearerToken).execute();
             assertEquals(
                     200,
                     response.code(),

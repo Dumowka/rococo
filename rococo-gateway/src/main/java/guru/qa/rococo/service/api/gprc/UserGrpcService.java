@@ -6,6 +6,7 @@ import guru.qa.rococo.grpc.UpdateUserRequest;
 import guru.qa.rococo.grpc.User;
 import guru.qa.rococo.model.UserJson;
 import guru.qa.rococo.service.api.UserService;
+import io.grpc.StatusRuntimeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,26 +24,34 @@ public class UserGrpcService implements UserService {
 
     @Override
     public UserJson getUser(String username) {
-        GetUserRequest request = GetUserRequest.newBuilder()
-                .setUsername(username)
-                .build();
+        try {
+            GetUserRequest request = GetUserRequest.newBuilder()
+                    .setUsername(username)
+                    .build();
 
-        User response = userServiceStub.getUser(request);
-        return fromGrpcUser(response);
+            User response = userServiceStub.getUser(request);
+            return fromGrpcUser(response);
+        } catch (StatusRuntimeException e) {
+            throw new RuntimeException("Error get user: " + e.getStatus().getDescription(), e);
+        }
     }
 
     @Override
     public UserJson updateUser(UserJson user) {
-        UpdateUserRequest.Builder requestBuilder = UpdateUserRequest.newBuilder()
-                .setUsername(user.username())
-                .setFirstname(user.firstname() != null ? user.firstname() : "")
-                .setLastname(user.lastname() != null ? user.lastname() : "");
+        try {
+            UpdateUserRequest.Builder requestBuilder = UpdateUserRequest.newBuilder()
+                    .setUsername(user.username())
+                    .setFirstname(user.firstname() != null ? user.firstname() : "")
+                    .setLastname(user.lastname() != null ? user.lastname() : "");
 
-        if (user.avatar() != null) {
-            requestBuilder.setAvatar(user.avatar());
+            if (user.avatar() != null) {
+                requestBuilder.setAvatar(user.avatar());
+            }
+
+            User response = userServiceStub.updateUser(requestBuilder.build());
+            return fromGrpcUser(response);
+        } catch (StatusRuntimeException e) {
+            throw new RuntimeException("Error update user: " + e.getStatus().getDescription(), e);
         }
-
-        User response = userServiceStub.updateUser(requestBuilder.build());
-        return fromGrpcUser(response);
     }
 }

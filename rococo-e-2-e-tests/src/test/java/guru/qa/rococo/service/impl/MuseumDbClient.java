@@ -8,6 +8,7 @@ import guru.qa.rococo.model.museum.MuseumJson;
 import io.qameta.allure.Step;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class MuseumDbClient {
 
@@ -23,6 +24,13 @@ public class MuseumDbClient {
     public MuseumJson createMuseum(MuseumEntity museum) {
         return Objects.requireNonNull(xaTransactionTemplate.execute(() -> MuseumJson.fromEntity(
                 museumRepository.create(museum)
+        )));
+    }
+
+    @Step("Получение музея с идентификатором '{}' через БД")
+    public MuseumJson getMuseumById(UUID id) {
+        return Objects.requireNonNull(xaTransactionTemplate.execute(() -> MuseumJson.fromEntity(
+                museumRepository.findById(id)
         )));
     }
 }

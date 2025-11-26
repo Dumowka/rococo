@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.UUID;
 
 public class UsersDbClient implements UsersClient {
 
@@ -43,6 +44,13 @@ public class UsersDbClient implements UsersClient {
                     null
             );
         }));
+    }
+
+    @Step("Получение пользователя с идентификатором '{}' через БД")
+    public UserJson getUserById(UUID id) {
+        return Objects.requireNonNull(xaTransactionTemplate.execute(() -> UserJson.fromEntity(
+                userdataUserRepository.findById(id).get(), null
+        )));
     }
 
     private @Nonnull UserEntity userEntity(String username) {

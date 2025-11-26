@@ -2,7 +2,6 @@ package guru.qa.rococo.service;
 
 import guru.qa.rococo.data.PaintingEntity;
 import guru.qa.rococo.data.repository.PaintingRepository;
-import guru.qa.rococo.ex.PaintingNotFoundException;
 import guru.qa.rococo.grpc.CreatePaintingRequest;
 import guru.qa.rococo.grpc.GetAllPaintingsRequest;
 import guru.qa.rococo.grpc.GetAllPaintingsResponse;
@@ -65,10 +64,14 @@ public class PaintingGrpcService extends RococoPaintingServiceGrpc.RococoPaintin
         try {
             UUID id = UUID.fromString(request.getId());
             PaintingEntity painting = paintingRepository.findById(id)
-                    .orElseThrow(PaintingNotFoundException::new);
+                    .orElseThrow(() -> new RuntimeException("Artist not found with id: " + id));
 
             responseObserver.onNext(convertToGrpcPainting(painting));
             responseObserver.onCompleted();
+        } catch (RuntimeException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asRuntimeException());
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription("Error on get painting by id: " + e.getMessage())
@@ -136,7 +139,7 @@ public class PaintingGrpcService extends RococoPaintingServiceGrpc.RococoPaintin
         try {
             UUID id = UUID.fromString(request.getId());
             PaintingEntity paintingEntity = paintingRepository.findById(id)
-                    .orElseThrow(PaintingNotFoundException::new);
+                    .orElseThrow(() -> new RuntimeException("Artist not found with id: " + id));
 
             paintingEntity.setTitle(request.getTitle());
             paintingEntity.setDescription(request.getDescription());
@@ -160,6 +163,10 @@ public class PaintingGrpcService extends RococoPaintingServiceGrpc.RococoPaintin
             PaintingEntity savedPainting = paintingRepository.save(paintingEntity);
             responseObserver.onNext(convertToGrpcPainting(savedPainting));
             responseObserver.onCompleted();
+        } catch (RuntimeException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asRuntimeException());
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription("Error on update painting: " + e.getMessage())

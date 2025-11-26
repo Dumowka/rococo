@@ -15,12 +15,15 @@ spring:
         rococo-museum:
           address: 'static://localhost:9096'
           negotiation-type: plaintext
+          max-inbound-message-size: 16MB
         rococo-artist:
           address: 'static://localhost:9095'
           negotiation-type: plaintext
+          max-inbound-message-size: 16MB
         rococo-painting:
           address: 'static://localhost:9097'
           negotiation-type: plaintext
+          max-inbound-message-size: 16MB
         rococo-userdata:
           address: 'static://localhost:9094'
           negotiation-type: plaintext

@@ -4,11 +4,15 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import guru.qa.rococo.data.entity.painting.PaintingEntity;
 import guru.qa.rococo.grpc.Painting;
+import guru.qa.rococo.model.PhotoPaths;
 import guru.qa.rococo.model.artist.ArtistJson;
 import guru.qa.rococo.model.museum.MuseumJson;
+import guru.qa.rococo.utils.RandomDataUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+
+import static guru.qa.rococo.utils.ResourceUtils.imageToDataUrl;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record PaintingJson(
@@ -57,6 +61,17 @@ public record PaintingJson(
                         entity.getTitle(),
                         entity.getDescription(),
                         entity.getContent() != null && entity.getContent().length > 0 ? new String(entity.getContent(), StandardCharsets.UTF_8) : null,
+                        museum,
+                        artist
+                );
+        }
+
+        public static PaintingJson createPainting(MuseumJson museum, ArtistJson artist) {
+                return new PaintingJson(
+                        null,
+                        RandomDataUtils.randomPaintingName(),
+                        RandomDataUtils.randomSentence(10),
+                        imageToDataUrl(PhotoPaths.PAINTING),
                         museum,
                         artist
                 );

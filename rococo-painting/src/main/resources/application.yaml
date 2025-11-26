@@ -7,7 +7,9 @@ spring:
   grpc:
     server:
       port: 9097
-      max-inbound-message-size: 16777216
+      max-inbound-message-size: 16MB
+    client:
+
   datasource:
     url: 'jdbc:postgresql://localhost:5432/rococo-painting'
     username: postgres

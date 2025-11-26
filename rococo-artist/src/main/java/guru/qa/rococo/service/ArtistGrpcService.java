@@ -2,7 +2,6 @@ package guru.qa.rococo.service;
 
 import guru.qa.rococo.data.ArtistEntity;
 import guru.qa.rococo.data.repository.ArtistRepository;
-import guru.qa.rococo.ex.ArtistNotFoundException;
 import guru.qa.rococo.grpc.Artist;
 import guru.qa.rococo.grpc.CreateArtistRequest;
 import guru.qa.rococo.grpc.GetAllArtistsRequest;
@@ -63,10 +62,14 @@ public class ArtistGrpcService extends RococoArtistServiceGrpc.RococoArtistServi
         try {
             UUID id = UUID.fromString(request.getId());
             ArtistEntity artist = artistRepository.findById(id)
-                    .orElseThrow(ArtistNotFoundException::new);
+                    .orElseThrow(() -> new RuntimeException("Artist not found with id: " + id));
 
             responseObserver.onNext(convertToGrpcArtist(artist));
             responseObserver.onCompleted();
+        } catch (RuntimeException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asRuntimeException());
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription("Error on get artist by id: " + e.getMessage())
@@ -99,7 +102,7 @@ public class ArtistGrpcService extends RococoArtistServiceGrpc.RococoArtistServi
         try {
             UUID id = UUID.fromString(request.getId());
             ArtistEntity artistEntity = artistRepository.findById(id)
-                    .orElseThrow(ArtistNotFoundException::new);
+                    .orElseThrow(() -> new RuntimeException("Artist not found with id: " + id));
 
             artistEntity.setName(request.getName());
             artistEntity.setBiography(request.getBiography());
@@ -112,6 +115,10 @@ public class ArtistGrpcService extends RococoArtistServiceGrpc.RococoArtistServi
             ArtistEntity savedArtist = artistRepository.save(artistEntity);
             responseObserver.onNext(convertToGrpcArtist(savedArtist));
             responseObserver.onCompleted();
+        } catch (RuntimeException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asRuntimeException());
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription("Error on update artist: " + e.getMessage())

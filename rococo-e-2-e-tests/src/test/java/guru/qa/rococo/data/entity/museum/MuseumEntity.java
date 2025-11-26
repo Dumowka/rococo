@@ -1,5 +1,6 @@
 package guru.qa.rococo.data.entity.museum;
 
+import guru.qa.rococo.model.PhotoPaths;
 import guru.qa.rococo.utils.RandomDataUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -49,7 +50,7 @@ public class MuseumEntity {
         museum.setTitle(RandomDataUtils.randomMuseumName());
         museum.setDescription(RandomDataUtils.randomSentence(15));
         museum.setCity(RandomDataUtils.randomCityName());
-        museum.setPhoto(imageToDataUrl("img/museum.jpg").getBytes());
+        museum.setPhoto(imageToDataUrl(PhotoPaths.MUSEUM).getBytes());
         museum.setCountry(country);
 
         return museum;

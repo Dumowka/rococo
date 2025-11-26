@@ -2,7 +2,6 @@ package guru.qa.rococo.service;
 
 import guru.qa.rococo.data.UserEntity;
 import guru.qa.rococo.data.repository.UserRepository;
-import guru.qa.rococo.ex.UserNotFoundException;
 import guru.qa.rococo.grpc.GetUserRequest;
 import guru.qa.rococo.grpc.RococoUserServiceGrpc;
 import guru.qa.rococo.grpc.UpdateUserRequest;
@@ -28,9 +27,13 @@ public class UserGrpcService extends RococoUserServiceGrpc.RococoUserServiceImpl
     public void getUser(GetUserRequest request, StreamObserver<User> responseObserver) {
         try {
             UserEntity userEntity = userRepository.findByUsername(request.getUsername())
-                    .orElseThrow(UserNotFoundException::new);
+                    .orElseThrow(() -> new RuntimeException("User not found with username: " + request.getUsername()));
             responseObserver.onNext(convertToGrpcUser(userEntity));
             responseObserver.onCompleted();
+        } catch (RuntimeException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asRuntimeException());
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription("Error on get user: " + e.getMessage())
@@ -42,7 +45,7 @@ public class UserGrpcService extends RococoUserServiceGrpc.RococoUserServiceImpl
     public void updateUser(UpdateUserRequest request, StreamObserver<User> responseObserver) {
         try {
             UserEntity userEntity = userRepository.findByUsername(request.getUsername())
-                    .orElseThrow(UserNotFoundException::new);
+                    .orElseThrow(() -> new RuntimeException("User not found with username: " + request.getUsername()));
 
             userEntity.setFirstname(request.getFirstname());
             userEntity.setLastname(request.getLastname());
@@ -56,6 +59,10 @@ public class UserGrpcService extends RococoUserServiceGrpc.RococoUserServiceImpl
             UserEntity savedUser = userRepository.save(userEntity);
             responseObserver.onNext(convertToGrpcUser(savedUser));
             responseObserver.onCompleted();
+        } catch (RuntimeException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asRuntimeException());
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription("Error on update user: " + e.getMessage())

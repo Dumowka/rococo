@@ -8,6 +8,7 @@ import guru.qa.rococo.model.painting.PaintingJson;
 import io.qameta.allure.Step;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class PaintingDbClient {
 
@@ -23,6 +24,13 @@ public class PaintingDbClient {
     public PaintingJson createPainting(PaintingEntity painting) {
         return Objects.requireNonNull(xaTransactionTemplate.execute(() -> PaintingJson.fromEntity(
                 paintingRepository.create(painting)
+        )));
+    }
+
+    @Step("Получение картины с идентификатором '{}' через БД")
+    public PaintingJson getPaintingById(UUID id) {
+        return Objects.requireNonNull(xaTransactionTemplate.execute(() -> PaintingJson.fromEntity(
+                paintingRepository.findById(id)
         )));
     }
 }

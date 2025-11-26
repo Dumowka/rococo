@@ -5,6 +5,7 @@ import guru.qa.rococo.grpc.GetAllCountriesResponse;
 import guru.qa.rococo.grpc.RococoCountryServiceGrpc;
 import guru.qa.rococo.model.CountryJson;
 import guru.qa.rococo.service.api.CountryService;
+import io.grpc.StatusRuntimeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -25,17 +26,21 @@ public class CountryGrpcService implements CountryService {
 
     @Override
     public Page<CountryJson> getAllCountries(Pageable pageable) {
-        GetAllCountriesRequest request = GetAllCountriesRequest.newBuilder()
-                .setPage(pageable.getPageNumber())
-                .setSize(pageable.getPageSize())
-                .build();
+        try {
+            GetAllCountriesRequest request = GetAllCountriesRequest.newBuilder()
+                    .setPage(pageable.getPageNumber())
+                    .setSize(pageable.getPageSize())
+                    .build();
 
-        GetAllCountriesResponse response = countryServiceStub.getAllCountries(request);
+            GetAllCountriesResponse response = countryServiceStub.getAllCountries(request);
 
-        List<CountryJson> countries = response.getCountriesList().stream()
-                .map(CountryJson::fromGrpcCountry)
-                .toList();
+            List<CountryJson> countries = response.getCountriesList().stream()
+                    .map(CountryJson::fromGrpcCountry)
+                    .toList();
 
-        return new PageImpl<>(countries, pageable, countries.size());
+            return new PageImpl<>(countries, pageable, countries.size());
+        } catch (StatusRuntimeException e) {
+            throw new RuntimeException("Error get all countries: " + e.getStatus().getDescription(), e);
+        }
     }
 }

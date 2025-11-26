@@ -4,8 +4,6 @@ import guru.qa.rococo.data.CountryEntity;
 import guru.qa.rococo.data.MuseumEntity;
 import guru.qa.rococo.data.repository.CountryRepository;
 import guru.qa.rococo.data.repository.MuseumRepository;
-import guru.qa.rococo.ex.CountryNotFoundException;
-import guru.qa.rococo.ex.MuseumNotFoundException;
 import guru.qa.rococo.grpc.Country;
 import guru.qa.rococo.grpc.CreateMuseumRequest;
 import guru.qa.rococo.grpc.Geo;
@@ -70,10 +68,14 @@ public class MuseumGrpcService extends RococoMuseumServiceGrpc.RococoMuseumServi
         try {
             UUID id = UUID.fromString(request.getId());
             MuseumEntity museum = museumRepository.findById(id)
-                    .orElseThrow(MuseumNotFoundException::new);
+                    .orElseThrow(() -> new RuntimeException("Museum not found with id: " + id));
 
             responseObserver.onNext(convertToGrpcArtist(museum));
             responseObserver.onCompleted();
+        } catch (RuntimeException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asRuntimeException());
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription("Error on get museum by id: " + e.getMessage())
@@ -86,7 +88,7 @@ public class MuseumGrpcService extends RococoMuseumServiceGrpc.RococoMuseumServi
         try {
             UUID countryId = UUID.fromString(request.getGeo().getCountry().getId());
             CountryEntity countryEntity = countryRepository.findById(countryId)
-                    .orElseThrow(CountryNotFoundException::new);
+                    .orElseThrow(() -> new RuntimeException("Country not found with id: " + countryId));
 
             MuseumEntity museumEntity = new MuseumEntity();
             museumEntity.setTitle(request.getTitle());
@@ -100,6 +102,11 @@ public class MuseumGrpcService extends RococoMuseumServiceGrpc.RococoMuseumServi
             MuseumEntity savedMuseum = museumRepository.save(museumEntity);
             responseObserver.onNext(convertToGrpcArtist(savedMuseum));
             responseObserver.onCompleted();
+
+        } catch (RuntimeException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asRuntimeException());
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription("Error on create museum: " + e.getMessage())
@@ -112,7 +119,7 @@ public class MuseumGrpcService extends RococoMuseumServiceGrpc.RococoMuseumServi
         try {
             UUID id = UUID.fromString(request.getId());
             MuseumEntity museumEntity = museumRepository.findById(id)
-                    .orElseThrow(MuseumNotFoundException::new);
+                    .orElseThrow(() -> new RuntimeException("Museum not found with id: " + id));
 
             museumEntity.setTitle(request.getTitle());
             museumEntity.setDescription(request.getDescription());
@@ -121,12 +128,17 @@ public class MuseumGrpcService extends RococoMuseumServiceGrpc.RococoMuseumServi
 
             UUID countryId = UUID.fromString(request.getGeo().getCountry().getId());
             CountryEntity countryEntity = countryRepository.findById(countryId)
-                    .orElseThrow(CountryNotFoundException::new);
+                    .orElseThrow(() -> new RuntimeException("Country not found with id: " + countryId));
             museumEntity.setCountry(countryEntity);
 
             MuseumEntity savedMuseum = museumRepository.save(museumEntity);
             responseObserver.onNext(convertToGrpcArtist(savedMuseum));
             responseObserver.onCompleted();
+
+        } catch (RuntimeException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asRuntimeException());
         } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription("Error on update museum: " + e.getMessage())

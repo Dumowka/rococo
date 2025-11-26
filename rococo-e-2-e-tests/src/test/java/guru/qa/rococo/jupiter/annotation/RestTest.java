@@ -1,0 +1,33 @@
+package guru.qa.rococo.jupiter.annotation;
+
+import guru.qa.rococo.jupiter.extension.ArtistExtension;
+import guru.qa.rococo.jupiter.extension.ArtistsExtension;
+import guru.qa.rococo.jupiter.extension.MuseumExtension;
+import guru.qa.rococo.jupiter.extension.MuseumsExtension;
+import guru.qa.rococo.jupiter.extension.PaintingExtension;
+import guru.qa.rococo.jupiter.extension.PaintingsExtension;
+import guru.qa.rococo.jupiter.extension.UserExtension;
+import io.qameta.allure.junit5.AllureJunit5;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+@ExtendWith({
+        UserExtension.class,
+        MuseumExtension.class,
+        MuseumsExtension.class,
+        AllureJunit5.class,
+        ArtistExtension.class,
+        ArtistsExtension.class,
+        PaintingsExtension.class,
+        PaintingExtension.class
+})
+@Tag("rest")
+public @interface RestTest {
+}

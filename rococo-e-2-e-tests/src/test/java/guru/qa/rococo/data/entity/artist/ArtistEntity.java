@@ -1,5 +1,6 @@
 package guru.qa.rococo.data.entity.artist;
 
+import guru.qa.rococo.model.PhotoPaths;
 import guru.qa.rococo.utils.RandomDataUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -38,7 +39,7 @@ public class ArtistEntity {
         artist.setId(null);
         artist.setName(RandomDataUtils.randomArtistName());
         artist.setBiography(RandomDataUtils.randomArtistBiography());
-        artist.setPhoto(imageToDataUrl("img/artist.jpeg").getBytes());
+        artist.setPhoto(imageToDataUrl(PhotoPaths.ARTIST).getBytes());
 
         return artist;
     }

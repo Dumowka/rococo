@@ -8,6 +8,7 @@ import guru.qa.rococo.model.artist.ArtistJson;
 import io.qameta.allure.Step;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class ArtistDbClient {
 
@@ -23,6 +24,13 @@ public class ArtistDbClient {
     public ArtistJson createArtist(ArtistEntity artist) {
         return Objects.requireNonNull(xaTransactionTemplate.execute(() -> ArtistJson.fromEntity(
                 artistRepository.create(artist)
+        )));
+    }
+
+    @Step("Получение художника с идентификатором '{}' через БД")
+    public ArtistJson getArtistById(UUID id) {
+        return Objects.requireNonNull(xaTransactionTemplate.execute(() -> ArtistJson.fromEntity(
+                artistRepository.findById(id)
         )));
     }
 }

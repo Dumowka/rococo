@@ -4,9 +4,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import guru.qa.rococo.data.entity.museum.MuseumEntity;
 import guru.qa.rococo.grpc.Museum;
+import guru.qa.rococo.model.PhotoPaths;
+import guru.qa.rococo.utils.RandomDataUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+
+import static guru.qa.rococo.utils.ResourceUtils.imageToDataUrl;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record MuseumJson(
@@ -67,4 +71,16 @@ public record MuseumJson(
         );
     }
 
+    public static MuseumJson createMuseum(CountryJson country) {
+        return new MuseumJson(
+                null,
+                RandomDataUtils.randomMuseumName(),
+                RandomDataUtils.randomSentence(10),
+                imageToDataUrl(PhotoPaths.MUSEUM),
+                new Geo(
+                        RandomDataUtils.randomCityName(),
+                        country
+                )
+        );
+    }
 }

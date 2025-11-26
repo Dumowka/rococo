@@ -5,6 +5,8 @@ import guru.qa.rococo.data.entity.artist.ArtistEntity;
 import jakarta.persistence.EntityManager;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.UUID;
 
 import static guru.qa.rococo.data.jpa.EntityManagers.em;
 
@@ -19,5 +21,10 @@ public class ArtistRepository {
         entityManager.joinTransaction();
         entityManager.persist(artist);
         return artist;
+    }
+
+    @Nullable
+    public ArtistEntity findById(UUID id) {
+        return entityManager.find(ArtistEntity.class, id);
     }
 }

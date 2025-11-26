@@ -1,5 +1,6 @@
 package guru.qa.rococo.data.entity.painting;
 
+import guru.qa.rococo.model.PhotoPaths;
 import guru.qa.rococo.utils.RandomDataUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -44,7 +45,7 @@ public class PaintingEntity {
         painting.setId(null);
         painting.setTitle(RandomDataUtils.randomPaintingName());
         painting.setDescription(RandomDataUtils.randomSentence(15));
-        painting.setContent(imageToDataUrl("img/painting.jpeg").getBytes());
+        painting.setContent(imageToDataUrl(PhotoPaths.PAINTING).getBytes());
         painting.setMuseumId(museumId);
         painting.setArtistId(artistId);
 
