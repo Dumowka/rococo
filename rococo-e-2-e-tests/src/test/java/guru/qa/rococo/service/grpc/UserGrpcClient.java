@@ -1,4 +1,4 @@
-package guru.qa.rococo.service;
+package guru.qa.rococo.service.grpc;
 
 import guru.qa.rococo.config.Config;
 import guru.qa.rococo.grpc.GetUserRequest;

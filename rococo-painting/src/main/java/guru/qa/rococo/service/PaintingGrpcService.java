@@ -64,7 +64,7 @@ public class PaintingGrpcService extends RococoPaintingServiceGrpc.RococoPaintin
         try {
             UUID id = UUID.fromString(request.getId());
             PaintingEntity painting = paintingRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Artist not found with id: " + id));
+                    .orElseThrow(() -> new RuntimeException("Painting not found with id: " + id));
 
             responseObserver.onNext(convertToGrpcPainting(painting));
             responseObserver.onCompleted();
@@ -139,7 +139,7 @@ public class PaintingGrpcService extends RococoPaintingServiceGrpc.RococoPaintin
         try {
             UUID id = UUID.fromString(request.getId());
             PaintingEntity paintingEntity = paintingRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Artist not found with id: " + id));
+                    .orElseThrow(() -> new RuntimeException("Painting not found with id: " + id));
 
             paintingEntity.setTitle(request.getTitle());
             paintingEntity.setDescription(request.getDescription());

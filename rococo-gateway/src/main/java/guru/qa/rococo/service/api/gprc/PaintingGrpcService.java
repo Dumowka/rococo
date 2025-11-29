@@ -18,6 +18,7 @@ import io.grpc.StatusRuntimeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -62,7 +63,16 @@ public class PaintingGrpcService implements PaintingService {
                     .map(this::fromGrpcPaintingWithMuseumAndArtist)
                     .toList();
 
-            return new PageImpl<>(paintings, pageable, response.getPaintingsList().size());
+            Pageable grpcPageable = PageRequest.of(
+                    response.getCurrentPage(),
+                    response.getPageSize()
+            );
+
+            return new PageImpl<>(
+                    paintings,
+                    grpcPageable,
+                    response.getTotalElements()
+            );
         } catch (StatusRuntimeException e) {
             throw new RuntimeException("Error get all paintings: " + e.getStatus().getDescription(), e);
         }
@@ -97,7 +107,16 @@ public class PaintingGrpcService implements PaintingService {
                     .map(this::fromGrpcPaintingWithMuseumAndArtist)
                     .toList();
 
-            return new PageImpl<>(paintings, pageable, response.getPaintingsList().size());
+            Pageable grpcPageable = PageRequest.of(
+                    response.getCurrentPage(),
+                    response.getPageSize()
+            );
+
+            return new PageImpl<>(
+                    paintings,
+                    grpcPageable,
+                    response.getTotalElements()
+            );
         } catch (StatusRuntimeException e) {
             throw new RuntimeException("Error get painting by artist id: " + e.getStatus().getDescription(), e);
         }

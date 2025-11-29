@@ -9,6 +9,7 @@ import io.grpc.StatusRuntimeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +39,16 @@ public class CountryGrpcService implements CountryService {
                     .map(CountryJson::fromGrpcCountry)
                     .toList();
 
-            return new PageImpl<>(countries, pageable, countries.size());
+            Pageable grpcPageable = PageRequest.of(
+                    response.getCurrentPage(),
+                    response.getPageSize()
+            );
+
+            return new PageImpl<>(
+                    countries,
+                    grpcPageable,
+                    response.getTotalElements()
+            );
         } catch (StatusRuntimeException e) {
             throw new RuntimeException("Error get all countries: " + e.getStatus().getDescription(), e);
         }

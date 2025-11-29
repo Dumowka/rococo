@@ -15,6 +15,7 @@ import io.grpc.StatusRuntimeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -50,7 +51,16 @@ public class MuseumGrpcService implements MuseumService {
                     .map(MuseumJson::fromGrpcMuseum)
                     .toList();
 
-            return new PageImpl<>(museums, pageable, response.getPageSize());
+            Pageable grpcPageable = PageRequest.of(
+                    response.getCurrentPage(),
+                    response.getPageSize()
+            );
+
+            return new PageImpl<>(
+                    museums,
+                    grpcPageable,
+                    response.getTotalElements()
+            );
         } catch (StatusRuntimeException e) {
             throw new RuntimeException("Error get all museums: " + e.getStatus().getDescription(), e);
         }
