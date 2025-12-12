@@ -46,7 +46,6 @@ public class ApiLoginExtension implements BeforeEachCallback, ParameterResolver 
                 ApiLogin.class
         ).ifPresent(apiLogin -> {
 
-
             final UserJson userToLogin;
             final UserJson userFromUserExtension = UserExtension.getCreatedUser();
             if ("".equals(apiLogin.username()) || "".equals(apiLogin.password())) {
@@ -66,7 +65,6 @@ public class ApiLoginExtension implements BeforeEachCallback, ParameterResolver 
                 userToLogin = fakeUser;
             }
 
-
             final String token = authApiClient.login(
                     userToLogin.username(),
                     userToLogin.testData().password()
@@ -77,12 +75,9 @@ public class ApiLoginExtension implements BeforeEachCallback, ParameterResolver 
                 Selenide.open(CFG.frontUrl());
                 Selenide.localStorage().setItem("id_token", getToken());
                 WebDriverRunner.getWebDriver().manage().addCookie(
-                        new Cookie(
-                                "JSESSIONID",
-                                ThreadSafeCookieStore.INSTANCE.cookieValue("JSESSIONID")
-                        )
+                        getJsessionIdCookie()
                 );
-                Selenide.open(CFG.frontUrl() + "/main", MainPage.class).checkThatPageLoaded();
+                Selenide.open(MainPage.URL, MainPage.class).checkThatPageLoaded();
             }
         });
     }

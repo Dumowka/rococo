@@ -1,6 +1,5 @@
 package guru.qa.rococo.controller;
 
-import guru.qa.rococo.config.Callbacks;
 import guru.qa.rococo.model.RegistrationModel;
 import guru.qa.rococo.service.OauthSessionValidator;
 import guru.qa.rococo.service.UserService;
@@ -56,6 +55,7 @@ public class RegisterController {
   @GetMapping("/register")
   public String getRegisterPage(@Nonnull Model model) {
     model.addAttribute(MODEL_REG_FORM_ATTR, new RegistrationModel(null, null, null));
+    model.addAttribute(MODEL_FRONT_URI_ATTR, rococoFrontUri);
     return REGISTRATION_VIEW_NAME;
   }
 
@@ -86,12 +86,7 @@ public class RegisterController {
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
     }
 
-    if (sessionValidator.isAndroidOauthSession(session)) {
-      model.addAttribute(MODEL_FRONT_URI_ATTR, mobileCustomScheme + androidAppUri + Callbacks.Android.login);
-      model.addAttribute(MODEL_FINAL_STEP_BTN_TEXT_ATTR, "Back to Application");
-    } else {
-      model.addAttribute(MODEL_FRONT_URI_ATTR, rococoFrontUri + Callbacks.Web.init);
-    }
+    model.addAttribute(MODEL_FRONT_URI_ATTR, rococoFrontUri);
     return REGISTRATION_VIEW_NAME;
   }
 

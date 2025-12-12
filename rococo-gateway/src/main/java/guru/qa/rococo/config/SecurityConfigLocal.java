@@ -35,7 +35,7 @@ public class SecurityConfigLocal {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(customizer ->
                         customizer.requestMatchers(
-                                        PathPatternRequestMatcher.withDefaults().matcher("/api/session"),
+                                        PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/api/session"),
                                         PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/api/artist/**"),
                                         PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/api/museum/**"),
                                         PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/api/painting/**"))

@@ -1,8 +1,70 @@
 package guru.qa.rococo.page;
 
-public class MainPage {
+import com.codeborne.selenide.ElementsCollection;
+import com.codeborne.selenide.SelenideElement;
+import guru.qa.rococo.config.Config;
+import guru.qa.rococo.page.component.HeaderComponent;
+import io.qameta.allure.Step;
+import lombok.Getter;
 
-    public void checkThatPageLoaded() {
+import static com.codeborne.selenide.Condition.exist;
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selectors.byText;
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.$$;
 
+public class MainPage extends BasePage<MainPage> {
+
+    public static final String URL = Config.getInstance().frontUrl();
+
+    private final SelenideElement profileBtn = $("svg.avatar-initials");
+    private final ElementsCollection navigationList = $$("main nav li");
+    @Getter
+    private final HeaderComponent header = new HeaderComponent();
+
+    @Override
+    @Step("Проверка, что главная страница загружена")
+    public MainPage checkThatPageLoaded() {
+        $(byText("Ваши любимые картины и художники всегда рядом")).shouldBe(visible);
+        return this;
+    }
+
+    @Step("Нажатие кнопки входа")
+    public LoginPage clickLogin() {
+        header.clickLogin();
+        return new LoginPage();
+    }
+
+    @Step("Проверка, что аватар профиля видим")
+    public void profileAvatarShouldBeVisible() {
+        profileBtn.shouldBe(visible);
+    }
+
+    @Step("Проверка, что аватара профиля не существует")
+    public void profileAvatarShouldNotExist() {
+        profileBtn.shouldNot(exist, visible);
+    }
+
+    private void goToItem(String name) {
+        navigationList.find(text(name)).click();
+    }
+
+    @Step("Переход на страницу 'Музеи'")
+    public MuseumsPage goToMuseums() {
+        goToItem("Музеи");
+        return new MuseumsPage();
+    }
+
+    @Step("Переход на страницу 'Художники'")
+    public ArtistsPage goToArtists() {
+        goToItem("Художники");
+        return new ArtistsPage();
+    }
+
+    @Step("Переход на страницу 'Картины'")
+    public PaintingsPage goToPaintings() {
+        goToItem("Картины");
+        return new PaintingsPage();
     }
 }
