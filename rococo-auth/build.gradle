@@ -37,7 +37,7 @@ jib {
         ]
         creationTime = 'USE_CURRENT_TIMESTAMP'
         labels = [
-                'maintainer': 'Dmitrii Tuchs @dtuchs',
+                'maintainer': 'Dmitrii Zhirnov @dumowka',
                 'version'   : "${project.version}".toString()
         ]
     }

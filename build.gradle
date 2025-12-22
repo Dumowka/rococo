@@ -28,7 +28,7 @@ tasks.named('test') {
 
 subprojects {
     ext {
-        dockerHubName = "qaguru"
+        dockerHubName = "zhirnov"
 
         lombokVersion = '1.18.38'
         springKafkaVersion = '3.3.4'

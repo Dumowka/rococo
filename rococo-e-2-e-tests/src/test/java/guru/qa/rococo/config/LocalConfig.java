@@ -76,4 +76,16 @@ public enum LocalConfig implements Config {
     public String paintingJdbcUrl() {
         return "jdbc:postgresql://127.0.0.1:5432/rococo-painting";
     }
+
+    @Nonnull
+    @Override
+    public String screenshotBaseDir() {
+        return "screenshots/local/";
+    }
+
+    @Nonnull
+    @Override
+    public String allureDockerUrl() {
+        return "http://allure:5050/";
+    }
 }

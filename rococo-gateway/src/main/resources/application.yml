@@ -50,3 +50,32 @@ spring:
 rococo-front:
   base-uri: 'http://127.0.0.1:3000'
 ---
+spring:
+  config:
+    activate:
+      on-profile: 'docker'
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: 'http://auth.rococo.dc:9000'
+  grpc:
+    client:
+      channels:
+        rococo-museum:
+          address: 'static://museum.rococo.dc:9096'
+          negotiation-type: plaintext
+          max-inbound-message-size: 16MB
+        rococo-artist:
+          address: 'static://artist.rococo.dc:9095'
+          negotiation-type: plaintext
+          max-inbound-message-size: 16MB
+        rococo-painting:
+          address: 'static://painting.rococo.dc:9097'
+          negotiation-type: plaintext
+          max-inbound-message-size: 16MB
+        rococo-userdata:
+          address: 'static://userdata.rococo.dc:9094'
+          negotiation-type: plaintext
+rococo-front:
+  base-uri: 'http://frontend.rococo.dc'

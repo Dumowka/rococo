@@ -45,3 +45,13 @@ logging:
     root: INFO
     org.springframework.grpc: DEBUG
     guru.qa.rococo.service.GrpcLoggerInterceptor: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: 'docker'
+  datasource:
+    url: 'jdbc:postgresql://rococo-all-db:5432/rococo-painting'
+    username: postgres
+    password: secret

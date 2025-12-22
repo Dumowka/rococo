@@ -8,72 +8,87 @@ public enum DockerConfig implements Config {
     @Nonnull
     @Override
     public String frontUrl() {
-        return "";
+        return "http://frontend.rococo.dc/";
     }
 
     @Nonnull
     @Override
     public String authUrl() {
-        return "";
+        return "http://auth.rococo.dc:9000/";
     }
 
     @Nonnull
     @Override
     public String authJdbcUrl() {
-        return "";
+        return "jdbc:postgresql://rococo-all-db:5432/rococo-auth";
     }
 
     @Nonnull
     @Override
     public String gatewayUrl() {
-        return "";
+        return "http://gateway.rococo.dc:8080/";
     }
 
     @Nonnull
     @Override
     public String userdataGrpcAddress() {
-        return "";
+        return "userdata.rococo.dc";
     }
 
     @Nonnull
     @Override
     public String userdataJdbcUrl() {
-        return "";
+        return "jdbc:postgresql://rococo-all-db:5432/rococo-userdata";
     }
 
     @Nonnull
     @Override
     public String artistGrpcAddress() {
-        return "";
+        return "artist.rococo.dc";
     }
 
     @Nonnull
     @Override
     public String artistJdbcUrl() {
-        return "";
+        return "jdbc:postgresql://rococo-all-db:5432/rococo-artist";
     }
 
     @Nonnull
     @Override
     public String museumGrpcAddress() {
-        return "";
+        return "museum.rococo.dc";
     }
 
     @Nonnull
     @Override
     public String museumJdbcUrl() {
-        return "";
+        return "jdbc:postgresql://rococo-all-db:5432/rococo-museum";
     }
 
     @Nonnull
     @Override
     public String paintingGrpcAddress() {
-        return "";
+        return "painting.rococo.dc";
     }
 
     @Nonnull
     @Override
     public String paintingJdbcUrl() {
-        return "";
+        return "jdbc:postgresql://rococo-all-db:5432/rococo-painting";
+    }
+
+    @Nonnull
+    @Override
+    public String screenshotBaseDir() {
+        return "screenshots/selenoid/";
+    }
+
+    @Nonnull
+    @Override
+    public String allureDockerUrl() {
+        final String allureDockerApiFromEnv = System.getenv("ALLURE_DOCKER_API");
+        return allureDockerApiFromEnv != null
+                ? allureDockerApiFromEnv
+                : "http://allure:5050/";
     }
 }

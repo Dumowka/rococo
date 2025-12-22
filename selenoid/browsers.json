@@ -1,0 +1,17 @@
+{
+  "chrome": {
+    "default": "137.0",
+    "versions": {
+      "137.0": {
+        "image": "erolatex/selenoid_chromium:137.0",
+        "port": "4444",
+        "env": [
+          "TZ=Europe/Moscow",
+          "LANG=ru_RU.UTF-8",
+          "LANGUAGE=ru:ru",
+          "LC_ALL=ru_RU.UTF-8"
+        ]
+      }
+    }
+  }
+}
