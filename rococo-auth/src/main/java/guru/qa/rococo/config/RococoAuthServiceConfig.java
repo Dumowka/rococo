@@ -169,22 +169,12 @@ public class RococoAuthServiceConfig {
   public RegisteredClientRepository registeredClientRepository(JdbcOperations jdbcOperations) {
     RegisteredClientRepository registeredClientRepository = new JdbcRegisteredClientRepository(jdbcOperations);
     RegisteredClient webClient = registeredClientRepository.findByClientId(webClientId);
-    RegisteredClient mobileClient = registeredClientRepository.findByClientId(mobileClientId);
     if (webClient == null) {
       registeredClientRepository.save(
           registeredClient(
               webClientId,
               rococoFrontUri + Callbacks.Web.login,
               rococoFrontUri + Callbacks.Web.logout
-          )
-      );
-    }
-    if (mobileClient == null) {
-      registeredClientRepository.save(
-          registeredClient(
-              mobileClientId,
-              mobileCustomScheme + androidAppUri + Callbacks.Android.login,
-              mobileCustomScheme + androidAppUri + Callbacks.Android.logout
           )
       );
     }

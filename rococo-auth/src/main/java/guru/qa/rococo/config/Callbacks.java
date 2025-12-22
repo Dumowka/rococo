@@ -9,7 +9,7 @@ public interface Callbacks {
   }
 
   interface Web {
-    String login = "/login";
+    String login = "/authorized";
     String logout = "/logout";
     String init = "/";
   }

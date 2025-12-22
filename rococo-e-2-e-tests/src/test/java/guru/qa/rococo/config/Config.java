@@ -61,4 +61,10 @@ public interface Config {
 
     @Nonnull
     String paintingJdbcUrl();
+
+    @Nonnull
+    String screenshotBaseDir();
+
+    @Nonnull
+    String allureDockerUrl();
 }

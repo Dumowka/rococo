@@ -2,7 +2,6 @@ package guru.qa.rococo.service;
 
 import guru.qa.rococo.api.core.ThreadSafeCookieStore;
 import guru.qa.rococo.config.Config;
-import io.qameta.allure.okhttp3.AllureOkHttp3;
 import okhttp3.Interceptor;
 import okhttp3.JavaNetCookieJar;
 import okhttp3.OkHttpClient;
@@ -42,6 +41,10 @@ public abstract class RestClient {
         this(baseUrl, false, converterFactory, HttpLoggingInterceptor.Level.HEADERS, null);
     }
 
+    public RestClient(String baseUrl, HttpLoggingInterceptor.Level level) {
+        this(baseUrl, false, JacksonConverterFactory.create(), level);
+    }
+
     public RestClient(String baseUrl, boolean followRedirect, Converter.Factory converterFactory, Interceptor... interceptors) {
         this(baseUrl, followRedirect, converterFactory, HttpLoggingInterceptor.Level.HEADERS, interceptors);
     }
@@ -65,11 +68,6 @@ public abstract class RestClient {
 
         clientBuilder
                 .addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(level))
-                .addNetworkInterceptor(
-                        new AllureOkHttp3()
-                                .setRequestTemplate("http-request.ftl")
-                                .setResponseTemplate("http-response.ftl")
-                )
                 .cookieJar(
                         new JavaNetCookieJar(
                                 new CookieManager(

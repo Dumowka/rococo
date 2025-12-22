@@ -1,5 +1,6 @@
 package guru.qa.rococo.jupiter.extension;
 
+import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.WebDriverRunner;
 import com.codeborne.selenide.logevents.SelenideLogger;
@@ -12,9 +13,11 @@ import org.junit.jupiter.api.extension.LifecycleMethodExecutionExceptionHandler;
 import org.junit.jupiter.api.extension.TestExecutionExceptionHandler;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.chrome.ChromeOptions;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.ByteArrayInputStream;
+import java.util.Map;
 
 @ParametersAreNonnullByDefault
 public class BrowserExtension implements
@@ -23,8 +26,22 @@ public class BrowserExtension implements
         TestExecutionExceptionHandler,
         LifecycleMethodExecutionExceptionHandler {
 
+    static {
+        Configuration.pageLoadStrategy = "eager";
+        if ("docker".equals(System.getProperty("test.env"))) {
+            Configuration.remote = "http://selenoid:4444/wd/hub";
+            if ("chrome".equals(Configuration.browser)) {
+                Configuration.browserCapabilities = new ChromeOptions()
+                        .addArguments("--no-sandbox")
+                        .setExperimentalOption("prefs", Map.of("intl.accept_languages", "ru-RU,ru"));
+            }
+        }
+    }
+
     @Override
     public void afterEach(ExtensionContext context) {
+        SelenideLogger.removeListener("Allure-selenide");
+
         if (WebDriverRunner.hasWebDriverStarted()) {
             Selenide.closeWebDriver();
         }
@@ -58,11 +75,15 @@ public class BrowserExtension implements
 
     private static void doScreenshot() {
         if (WebDriverRunner.hasWebDriverStarted()) {
+            byte[] screenshot =
+                    ((TakesScreenshot) WebDriverRunner.getWebDriver())
+                            .getScreenshotAs(OutputType.BYTES);
+
             Allure.addAttachment(
                     "Screen on fail",
-                    new ByteArrayInputStream(
-                            ((TakesScreenshot) WebDriverRunner.getWebDriver()).getScreenshotAs(OutputType.BYTES)
-                    )
+                    "image/png",
+                    new ByteArrayInputStream(screenshot),
+                    ".png"
             );
         }
     }
