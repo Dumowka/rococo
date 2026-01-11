@@ -13,8 +13,6 @@ import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.platform.commons.support.AnnotationSupport;
 
-import static guru.qa.rococo.utils.ResourceUtils.imageToDataUrl;
-
 public class MuseumExtension implements BeforeEachCallback, ParameterResolver {
 
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(MuseumExtension.class);
@@ -31,7 +29,7 @@ public class MuseumExtension implements BeforeEachCallback, ParameterResolver {
                     museum.setTitle("".equals(museumAnno.title()) ? RandomDataUtils.randomMuseumName() : museumAnno.title());
                     museum.setDescription(museumAnno.description());
                     museum.setCity(museumAnno.city());
-                    museum.setPhoto(imageToDataUrl(museumAnno.imagePath()).getBytes());
+                    museum.setPhoto(null);
                     museum.setCountry(
                             countryDbClient.findByName(museumAnno.country())
                     );

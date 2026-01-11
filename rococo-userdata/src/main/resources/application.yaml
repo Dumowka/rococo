@@ -65,3 +65,14 @@ spring:
     username: postgres
     password: secret
 ---
+spring:
+  config:
+    activate:
+      on-profile: 'docker'
+  datasource:
+    url: 'jdbc:postgresql://rococo-all-db:5432/rococo-userdata'
+    username: postgres
+    password: secret
+  kafka:
+    consumer:
+      bootstrap-servers: kafka:9092

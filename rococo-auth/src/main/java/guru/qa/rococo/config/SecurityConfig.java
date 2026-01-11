@@ -17,40 +17,40 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 @Configuration
 public class SecurityConfig {
 
-  private final CorsCustomizer corsCustomizer;
+    private final CorsCustomizer corsCustomizer;
 
-  @Autowired
-  public SecurityConfig(CorsCustomizer corsCustomizer) {
-    this.corsCustomizer = corsCustomizer;
-  }
+    @Autowired
+    public SecurityConfig(CorsCustomizer corsCustomizer) {
+        this.corsCustomizer = corsCustomizer;
+    }
 
-  @Bean
-  public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-    corsCustomizer.corsCustomizer(http);
+    @Bean
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+        corsCustomizer.corsCustomizer(http);
 
-    return http.authorizeHttpRequests(customizer -> customizer
-            .dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
-            .requestMatchers(
-                antMatcher("/register"),
-                antMatcher("/error"),
-                antMatcher("/images/**"),
-                antMatcher("/styles/**"),
-                antMatcher("/fonts/**"),
-                antMatcher("/.well-known/**"),
-                antMatcher("/actuator/health")
-            ).permitAll()
-            .anyRequest()
-            .authenticated()
-        )
-        .csrf(csrf -> csrf
-            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-            // https://stackoverflow.com/a/74521360/65681
-            .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
-        )
-        .addFilterAfter(new CookieCsrfFilter(), BasicAuthenticationFilter.class)
-        .formLogin(login -> login
-            .loginPage("/login")
-            .permitAll())
-        .build();
-  }
+        return http.authorizeHttpRequests(customizer -> customizer
+                        .dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.FORWARD, DispatcherType.ERROR).permitAll()
+                        .requestMatchers(
+                                antMatcher("/register"),
+                                antMatcher("/error"),
+                                antMatcher("/images/**"),
+                                antMatcher("/styles/**"),
+                                antMatcher("/fonts/**"),
+                                antMatcher("/.well-known/**"),
+                                antMatcher("/actuator/health")
+                        ).permitAll()
+                        .anyRequest()
+                        .authenticated()
+                )
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        // https://stackoverflow.com/a/74521360/65681
+                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+                )
+                .addFilterAfter(new CookieCsrfFilter(), BasicAuthenticationFilter.class)
+                .formLogin(login -> login
+                        .loginPage("/login")
+                        .permitAll())
+                .build();
+    }
 }
