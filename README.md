@@ -34,7 +34,7 @@ Rococo — учебный микросервисный проект для уп�
 
 ## Архитектурная модель
 
-![Preview](Rococo Microservices.png)
+![Preview](services.png)
 
 ---
 
