@@ -199,16 +199,17 @@ UI: `http://127.0.0.1:3000`
 
 ```
 rococo/
- ├─ rococo-gateway
- ├─ rococo-auth
- ├─ rococo-userdata
- ├─ rococo-artist
- ├─ rococo-painting
- ├─ rococo-museum
- ├─ rococo-client
- ├─ rococo-e-2-e-tests
- ├─ grpc-common
- └─ infrastructure
+├── rococo-gateway/          # API Gateway
+├── rococo-auth/            # Сервис аутентификации
+├── rococo-userdata/        # Пользовательские данные
+├── rococo-artist/          # Управление художниками
+├── rococo-painting/        # Управление картинами
+├── rococo-museum/          # Управление музеями
+├── rococo-client/          # Svelte фронтенд
+├── rococo-e-2-e-tests/     # End-to-End тесты
+├── grpc-common/            # Общие gRPC определения
+├── postgres/               # Скрипты инициализации БД
+└── selenoid/               # Конфигурация Selenoid
 ```
 
 ---
